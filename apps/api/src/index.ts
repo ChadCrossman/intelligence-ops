@@ -76,6 +76,6 @@ app.patch<{
 
 startScheduler();
 
-const port = Number(process.env.PORT ?? 3001);
+const port = Number(process.env.PORT ?? 3150);
 
 await app.listen({ port, host: "0.0.0.0" });

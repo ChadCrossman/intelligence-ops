@@ -1,6 +1,6 @@
 import type { DashboardSnapshot, QueryDefinition, QueryRun, RetrievedArticle } from "@pwio/shared";
 
-const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3001";
+const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3150";
 
 export async function getDashboard(): Promise<DashboardSnapshot> {
   const response = await fetch(`${API_BASE}/api/dashboard`);

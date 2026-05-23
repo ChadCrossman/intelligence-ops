@@ -50,13 +50,13 @@ pnpm dev
 Open:
 
 ```text
-http://localhost:5173
+http://localhost:5185
 ```
 
 The API runs on:
 
 ```text
-http://localhost:3001
+http://localhost:3150
 ```
 
 ## Environment variables
