@@ -7,11 +7,17 @@
     "dev": "pnpm --parallel dev",
     "dev:web": "pnpm --filter @pwio/web dev",
     "dev:api": "pnpm --filter @pwio/api dev",
+    "db:migrate": "node database/migrate.js up",
+    "db:status": "node database/migrate.js status",
     "build": "pnpm -r build",
     "test": "pnpm -r --if-present test",
     "typecheck": "pnpm -r typecheck"
   },
   "packageManager": "pnpm@10.5.0",
+  "dependencies": {
+    "dotenv": "^16.4.7",
+    "pg": "^8.13.1"
+  },
   "devDependencies": {
     "typescript": "^6.0.3"
   }
