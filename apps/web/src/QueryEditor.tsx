@@ -52,6 +52,7 @@ export function QueryEditor({
   const [isSaving, setIsSaving] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
   const [hasSubmitted, setHasSubmitted] = useState(false);
+  const [isPipelineCollapsed, setIsPipelineCollapsed] = useState(false);
 
   useEffect(() => {
     setDraft(query);
@@ -96,6 +97,14 @@ export function QueryEditor({
           <h2>{draft.name}</h2>
         </div>
         <div className="actions">
+          <button
+            className="collapse-toggle"
+            aria-expanded={!isPipelineCollapsed}
+            aria-controls="query-pipeline-fields"
+            onClick={() => setIsPipelineCollapsed((current) => !current)}
+          >
+            {isPipelineCollapsed ? "Expand" : "Collapse"}
+          </button>
           <button onClick={handleRun} disabled={isRunning || isSaving}>
             {isRunning ? "Running..." : "Run now"}
           </button>
@@ -105,35 +114,37 @@ export function QueryEditor({
         </div>
       </div>
 
-      {showErrors ? <div className="validation-summary">Fix the highlighted fields before continuing.</div> : null}
+      {!isPipelineCollapsed ? (
+        <div className="collapsible-content" id="query-pipeline-fields">
+          {showErrors ? <div className="validation-summary">Fix the highlighted fields before continuing.</div> : null}
 
-      <label>
-        Name
-        <input
-          value={draft.name}
-          aria-invalid={hasSubmitted && validationErrors.name ? "true" : undefined}
-          onChange={(event) => setDraft({ ...draft, name: event.target.value })}
-        />
-        {hasSubmitted && validationErrors.name ? <span className="field-error">{validationErrors.name}</span> : null}
-      </label>
+          <label>
+            Name
+            <input
+              value={draft.name}
+              aria-invalid={hasSubmitted && validationErrors.name ? "true" : undefined}
+              onChange={(event) => setDraft({ ...draft, name: event.target.value })}
+            />
+            {hasSubmitted && validationErrors.name ? <span className="field-error">{validationErrors.name}</span> : null}
+          </label>
 
-      <label>
-        Description
-        <textarea value={draft.description} onChange={(event) => setDraft({ ...draft, description: event.target.value })} />
-      </label>
+          <label>
+            Description
+            <textarea value={draft.description} onChange={(event) => setDraft({ ...draft, description: event.target.value })} />
+          </label>
 
-      <label>
-        Base query
-        <textarea
-          className="query-box"
-          value={draft.baseQuery}
-          aria-invalid={hasSubmitted && validationErrors.baseQuery ? "true" : undefined}
-          onChange={(event) => setDraft({ ...draft, baseQuery: event.target.value })}
-        />
-        {hasSubmitted && validationErrors.baseQuery ? <span className="field-error">{validationErrors.baseQuery}</span> : null}
-      </label>
+          <label>
+            Base query
+            <textarea
+              className="query-box"
+              value={draft.baseQuery}
+              aria-invalid={hasSubmitted && validationErrors.baseQuery ? "true" : undefined}
+              onChange={(event) => setDraft({ ...draft, baseQuery: event.target.value })}
+            />
+            {hasSubmitted && validationErrors.baseQuery ? <span className="field-error">{validationErrors.baseQuery}</span> : null}
+          </label>
 
-      <div className="grid-2">
+          <div className="grid-2">
         <label>
           Include terms, comma-separated
           <input value={draft.includeTerms.join(", ")} onChange={(event) => setDraft({ ...draft, includeTerms: splitCsv(event.target.value) })} />
@@ -143,9 +154,9 @@ export function QueryEditor({
           Exclude terms, comma-separated
           <input value={draft.excludeTerms.join(", ")} onChange={(event) => setDraft({ ...draft, excludeTerms: splitCsv(event.target.value) })} />
         </label>
-      </div>
+          </div>
 
-      <div className="grid-2">
+          <div className="grid-2">
         <label>
           Target domains, comma-separated
           <input value={draft.targetDomains.join(", ")} onChange={(event) => setDraft({ ...draft, targetDomains: splitCsv(event.target.value) })} />
@@ -155,9 +166,9 @@ export function QueryEditor({
           Governance themes, comma-separated
           <input value={draft.governanceThemes.join(", ")} onChange={(event) => setDraft({ ...draft, governanceThemes: splitCsv(event.target.value) })} />
         </label>
-      </div>
+          </div>
 
-      <div className="grid-4">
+          <div className="grid-4">
         <label>
           Date window
           <input
@@ -206,16 +217,18 @@ export function QueryEditor({
             <option value="weekly">Weekly</option>
           </select>
         </label>
-      </div>
+          </div>
 
-      <label className="inline">
+          <label className="inline">
         <input
           type="checkbox"
           checked={draft.status === "enabled"}
           onChange={(event) => setDraft({ ...draft, status: event.target.checked ? "enabled" : "paused" })}
         />
         Enabled
-      </label>
+          </label>
+        </div>
+      ) : null}
     </section>
   );
 }

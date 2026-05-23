@@ -182,6 +182,8 @@ main {
 .actions {
   display: flex;
   gap: 8px;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .view-tabs {
@@ -210,12 +212,27 @@ main {
   gap: 8px;
 }
 
+.collapsible-content {
+  display: grid;
+  gap: 10px;
+}
+
+.collapse-toggle {
+  background: rgba(0, 18, 20, 0.7);
+  border-color: var(--color-border);
+  font-size: 12px;
+  padding: 6px 10px;
+}
+
 .query {
   display: grid;
   gap: 4px;
+  justify-content: stretch;
+  justify-items: start;
   text-align: left;
   border: 1px solid var(--color-border);
   background: rgba(0, 40, 39, 0.58);
+  width: 100%;
 }
 
 .query.active {

@@ -17,6 +17,7 @@ export default function App() {
   const [selectedQueryId, setSelectedQueryId] = useState<string | undefined>();
   const [error, setError] = useState<string | undefined>();
   const [activeView, setActiveView] = useState<"queries" | "review">("queries");
+  const [isQueriesCollapsed, setIsQueriesCollapsed] = useState(false);
 
   async function refresh() {
     try {
@@ -65,20 +66,32 @@ export default function App() {
           <aside className="panel sidebar">
             <div className="panel-heading">
               <h2>Queries</h2>
+              <button
+                className="collapse-toggle"
+                aria-expanded={!isQueriesCollapsed}
+                aria-controls="queries-list"
+                onClick={() => setIsQueriesCollapsed((current) => !current)}
+              >
+                {isQueriesCollapsed ? "Expand" : "Collapse"}
+              </button>
             </div>
 
-            {dashboard.queries.map((query) => (
-              <button
-                key={query.id}
-                className={query.id === selectedQuery?.id ? "query active" : "query"}
-                onClick={() => setSelectedQueryId(query.id)}
-              >
-                <strong>{query.name}</strong>
-                <span>
-                  {query.frequency} - {query.status}
-                </span>
-              </button>
-            ))}
+            {!isQueriesCollapsed ? (
+              <div className="collapsible-content" id="queries-list">
+                {dashboard.queries.map((query) => (
+                  <button
+                    key={query.id}
+                    className={query.id === selectedQuery?.id ? "query active" : "query"}
+                    onClick={() => setSelectedQueryId(query.id)}
+                  >
+                    <strong>{query.name}</strong>
+                    <span>
+                      {query.frequency} - {query.status}
+                    </span>
+                  </button>
+                ))}
+              </div>
+            ) : null}
           </aside>
 
           {selectedQuery ? <QueryEditor query={selectedQuery} onSaved={refresh} /> : null}
