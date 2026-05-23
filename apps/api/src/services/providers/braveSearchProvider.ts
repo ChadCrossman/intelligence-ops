@@ -1,6 +1,7 @@
 import type { QueryDefinition } from "@pwio/shared";
 import type { SearchProvider } from "../searchProvider.js";
-import { buildSearchQuery, mockSearchResults, shouldUseMockProvider } from "./providerUtils.js";
+import { buildSearchQuery } from "./queryBuilder.js";
+import { mockSearchResults, shouldUseMockProvider } from "./mockProvider.js";
 
 interface BraveWebSearchResponse {
   web?: {
@@ -57,7 +58,7 @@ function snippetFromResult(result: BraveWebResult): string {
 export const braveSearchProvider: SearchProvider = {
   name: "brave",
 
-  async search(query) {
+  async search(query: QueryDefinition) {
     const apiKey = process.env.BRAVE_SEARCH_API_KEY;
 
     if (!apiKey) {

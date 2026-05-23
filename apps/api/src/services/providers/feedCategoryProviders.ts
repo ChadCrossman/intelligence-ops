@@ -1,5 +1,6 @@
 import type { SearchProvider } from "../searchProvider.js";
-import { envList, mockSearchResults, shouldUseMockProvider } from "./providerUtils.js";
+import { envList } from "./envUtils.js";
+import { mockSearchResults, shouldUseMockProvider } from "./mockProvider.js";
 import { searchRssFeeds } from "./rssSearchProvider.js";
 
 function createFeedCategoryProvider(name: string, envName: string): SearchProvider {

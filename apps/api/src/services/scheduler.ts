@@ -1,31 +1,16 @@
 import cron from "node-cron";
+import type { QueryDefinition } from "@pwio/shared";
 import { runQueryPipeline } from "./pipeline.js";
-import { storage } from "./storage.js";
+import { storage } from "./storage/index.js";
+
+async function runEnabled(frequency: QueryDefinition["frequency"]): Promise<void> {
+  const queries = await storage.listQueries();
+  const matching = queries.filter((q) => q.status === "enabled" && q.frequency === frequency);
+  await Promise.allSettled(matching.map(runQueryPipeline));
+}
 
 export function startScheduler(): void {
-  cron.schedule("0 * * * *", async () => {
-    const queries = (await storage.listQueries()).filter((query) => query.status === "enabled");
-
-    for (const query of queries) {
-      if (query.frequency === "hourly") {
-        await runQueryPipeline(query);
-      }
-    }
-  });
-
-  cron.schedule("0 7 * * *", async () => {
-    const queries = (await storage.listQueries()).filter((query) => query.status === "enabled" && query.frequency === "daily");
-
-    for (const query of queries) {
-      await runQueryPipeline(query);
-    }
-  });
-
-  cron.schedule("0 7 * * 1", async () => {
-    const queries = (await storage.listQueries()).filter((query) => query.status === "enabled" && query.frequency === "weekly");
-
-    for (const query of queries) {
-      await runQueryPipeline(query);
-    }
-  });
+  cron.schedule("0 * * * *", () => { void runEnabled("hourly"); });
+  cron.schedule("0 7 * * *", () => { void runEnabled("daily"); });
+  cron.schedule("0 7 * * 1", () => { void runEnabled("weekly"); });
 }

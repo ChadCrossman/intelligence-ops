@@ -2,6 +2,11 @@ import { useMemo, useState } from "react";
 import type { DashboardSnapshot, RetrievedArticle } from "@pwio/shared";
 import { updateArticleStatus } from "./api.js";
 
+interface ResultsReviewProps {
+  dashboard: DashboardSnapshot;
+  onUpdated: () => Promise<void>;
+}
+
 const reviewStatuses: RetrievedArticle["status"][] = ["new", "accepted", "selected", "rejected"];
 
 function statusLabel(status: RetrievedArticle["status"]): string {
@@ -17,13 +22,7 @@ function statusLabel(status: RetrievedArticle["status"]): string {
   }
 }
 
-export function ResultsReview({
-  dashboard,
-  onUpdated
-}: {
-  dashboard: DashboardSnapshot;
-  onUpdated: () => Promise<void>;
-}) {
+export function ResultsReview({ dashboard, onUpdated }: ResultsReviewProps): React.JSX.Element {
   const [statusFilter, setStatusFilter] = useState<RetrievedArticle["status"] | "all">("all");
   const [updatingArticleId, setUpdatingArticleId] = useState<string | undefined>();
   const [error, setError] = useState<string | undefined>();
@@ -66,12 +65,12 @@ export function ResultsReview({
           <h2>Retrieved articles</h2>
         </div>
         <div className="status-filter" aria-label="Filter articles by status">
-          <button className={statusFilter === "all" ? "active" : ""} onClick={() => setStatusFilter("all")}>
+          <button className={statusFilter === "all" ? "active" : ""} onClick={() => { setStatusFilter("all"); }}>
             All
             <span>{dashboard.recentArticles.length}</span>
           </button>
           {reviewStatuses.map((status) => (
-            <button key={status} className={statusFilter === status ? "active" : ""} onClick={() => setStatusFilter(status)}>
+            <button key={status} className={statusFilter === status ? "active" : ""} onClick={() => { setStatusFilter(status); }}>
               {statusLabel(status)}
               <span>{counts[status]}</span>
             </button>
@@ -108,7 +107,7 @@ export function ResultsReview({
                     key={status}
                     className={article.status === status ? "active" : ""}
                     disabled={updatingArticleId === article.id}
-                    onClick={() => void handleStatusChange(article, status)}
+                    onClick={() => { void handleStatusChange(article, status); }}
                   >
                     {statusLabel(status)}
                   </button>

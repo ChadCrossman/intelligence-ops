@@ -1,38 +1,18 @@
 import { useEffect, useMemo, useState } from "react";
-import type { DashboardSnapshot } from "@pwio/shared";
-import { getDashboard } from "./api.js";
+import { useDashboard } from "./hooks/useDashboard.js";
 import { QueryEditor } from "./QueryEditor.js";
 import { ResultsReview } from "./ResultsReview.js";
 
-const emptyDashboard: DashboardSnapshot = {
-  queries: [],
-  recentRuns: [],
-  recentArticles: [],
-  blogDrafts: [],
-  emailCampaigns: []
-};
-
-export default function App() {
-  const [dashboard, setDashboard] = useState<DashboardSnapshot>(emptyDashboard);
+export default function App(): React.JSX.Element {
+  const { dashboard, error, refresh } = useDashboard();
   const [selectedQueryId, setSelectedQueryId] = useState<string | undefined>();
-  const [error, setError] = useState<string | undefined>();
   const [activeView, setActiveView] = useState<"queries" | "review">("queries");
   const [isQueriesCollapsed, setIsQueriesCollapsed] = useState(false);
 
-  async function refresh() {
-    try {
-      setError(undefined);
-      const nextDashboard = await getDashboard();
-      setDashboard(nextDashboard);
-      setSelectedQueryId((current) => current ?? nextDashboard.queries[0]?.id);
-    } catch (caught) {
-      setError(caught instanceof Error ? caught.message : "Unknown error");
-    }
-  }
-
+  // Default to the first query whenever the query list first populates.
   useEffect(() => {
-    void refresh();
-  }, []);
+    setSelectedQueryId((current) => current ?? dashboard.queries[0]?.id);
+  }, [dashboard.queries]);
 
   const selectedQuery = useMemo(
     () => dashboard.queries.find((query) => query.id === selectedQueryId) ?? dashboard.queries[0],
@@ -47,16 +27,16 @@ export default function App() {
           <h1>Intelligence Ops</h1>
           <p>Define AI governance queries, schedule processing, rank the top results, and prepare blog and email draft workflows.</p>
         </div>
-        <button onClick={() => void refresh()}>Refresh</button>
+        <button onClick={() => { void refresh(); }}>Refresh</button>
       </header>
 
       {error ? <div className="error">{error}</div> : null}
 
       <nav className="view-tabs" aria-label="Primary views">
-        <button className={activeView === "queries" ? "active" : ""} onClick={() => setActiveView("queries")}>
+        <button className={activeView === "queries" ? "active" : ""} onClick={() => { setActiveView("queries"); }}>
           Queries
         </button>
-        <button className={activeView === "review" ? "active" : ""} onClick={() => setActiveView("review")}>
+        <button className={activeView === "review" ? "active" : ""} onClick={() => { setActiveView("review"); }}>
           Results review
         </button>
       </nav>
@@ -70,7 +50,7 @@ export default function App() {
                 className="collapse-toggle"
                 aria-expanded={!isQueriesCollapsed}
                 aria-controls="queries-list"
-                onClick={() => setIsQueriesCollapsed((current) => !current)}
+                onClick={() => { setIsQueriesCollapsed((current) => !current); }}
               >
                 {isQueriesCollapsed ? "Expand" : "Collapse"}
               </button>
@@ -82,7 +62,7 @@ export default function App() {
                   <button
                     key={query.id}
                     className={query.id === selectedQuery?.id ? "query active" : "query"}
-                    onClick={() => setSelectedQueryId(query.id)}
+                    onClick={() => { setSelectedQueryId(query.id); }}
                   >
                     <strong>{query.name}</strong>
                     <span>

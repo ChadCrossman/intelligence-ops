@@ -1,5 +1,6 @@
 import type { SearchProvider } from "../searchProvider.js";
-import { buildSearchQuery, mockSearchResults, shouldUseMockProvider } from "./providerUtils.js";
+import { buildSearchQuery } from "./queryBuilder.js";
+import { mockSearchResults, shouldUseMockProvider } from "./mockProvider.js";
 
 interface WebResult {
   title: string;
@@ -34,9 +35,14 @@ export const googleSearchProvider: SearchProvider = {
     const response = await fetch(url);
     if (!response.ok) throw new Error(`Google Search request failed with status ${response.status}.`);
 
-    const payload = (await response.json()) as { items?: Array<{ title?: string; link?: string; snippet?: string; displayLink?: string }> };
+    const payload = (await response.json()) as {
+      items?: Array<{ title?: string; link?: string; snippet?: string; displayLink?: string }>;
+    };
+
     return (payload.items ?? [])
-      .filter((item): item is { title: string; link: string; snippet?: string; displayLink?: string } => Boolean(item.title && item.link))
+      .filter((item): item is { title: string; link: string; snippet?: string; displayLink?: string } =>
+        Boolean(item.title && item.link)
+      )
       .map((item) => ({
         title: item.title,
         url: item.link,
@@ -104,12 +110,19 @@ export const newsApiProvider: SearchProvider = {
     if (!response.ok) throw new Error(`News API request failed with status ${response.status}.`);
 
     const payload = (await response.json()) as {
-      articles?: Array<{ title?: string; url?: string; description?: string; source?: { name?: string }; publishedAt?: string }>;
+      articles?: Array<{
+        title?: string;
+        url?: string;
+        description?: string;
+        source?: { name?: string };
+        publishedAt?: string;
+      }>;
     };
 
     return (payload.articles ?? [])
-      .filter((item): item is { title: string; url: string; description?: string; source?: { name?: string }; publishedAt?: string } =>
-        Boolean(item.title && item.url)
+      .filter(
+        (item): item is { title: string; url: string; description?: string; source?: { name?: string }; publishedAt?: string } =>
+          Boolean(item.title && item.url)
       )
       .map((item) => ({
         title: item.title,

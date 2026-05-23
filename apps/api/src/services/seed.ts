@@ -1,5 +1,8 @@
 import type { QueryDefinition } from "@pwio/shared";
 
+// Fixed timestamps keep seed data stable across server restarts.
+const SEED_DATE = "2026-01-01T00:00:00.000Z";
+
 export const seedQueries: QueryDefinition[] = [
   {
     id: "query-ai-governance",
@@ -15,8 +18,8 @@ export const seedQueries: QueryDefinition[] = [
     frequency: "daily",
     status: "enabled",
     governanceThemes: ["AI operational governance", "publication assurance"],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    createdAt: SEED_DATE,
+    updatedAt: SEED_DATE
   },
   {
     id: "query-semantic-drift",
@@ -32,7 +35,7 @@ export const seedQueries: QueryDefinition[] = [
     frequency: "weekly",
     status: "enabled",
     governanceThemes: ["semantic governance", "provenance"],
-    createdAt: new Date().toISOString(),
-    updatedAt: new Date().toISOString()
+    createdAt: SEED_DATE,
+    updatedAt: SEED_DATE
   }
 ];

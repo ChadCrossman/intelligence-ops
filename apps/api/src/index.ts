@@ -1,23 +1,26 @@
+// Load environment variables before any service modules are imported.
+import { existsSync } from "node:fs";
+import { join } from "node:path";
+import dotenv from "dotenv";
+
+for (const envPath of [join(process.cwd(), "..", "..", ".env"), join(process.cwd(), "..", "..", ".env.local")]) {
+  if (existsSync(envPath)) {
+    dotenv.config({ path: envPath, override: false });
+  }
+}
+
 import cors from "@fastify/cors";
 import Fastify from "fastify";
-import { queryDefinitionInputSchema, updateArticleStatusInputSchema, type QueryDefinition } from "@pwio/shared";
+import { queryDefinitionInputSchema, updateArticleStatusInputSchema } from "@pwio/shared";
 import { ZodError } from "zod";
-import { v4 as uuid } from "uuid";
 import { runQueryPipeline } from "./services/pipeline.js";
 import { startScheduler } from "./services/scheduler.js";
-import { storage } from "./services/storage.js";
+import { buildQueryDefinition } from "./services/queryFactory.js";
+import { storage } from "./services/storage/index.js";
 
 const app = Fastify({ logger: true });
 
-await app.register(cors, {
-  origin: true
-});
-
-app.get("/health", async () => ({ ok: true }));
-
-app.get("/api/dashboard", async () => storage.snapshot());
-
-app.get("/api/queries", async () => storage.listQueries());
+await app.register(cors, { origin: true });
 
 function zodErrorResponse(error: ZodError) {
   return {
@@ -29,6 +32,12 @@ function zodErrorResponse(error: ZodError) {
   };
 }
 
+app.get("/health", async () => ({ ok: true }));
+
+app.get("/api/dashboard", async () => storage.snapshot());
+
+app.get("/api/queries", async () => storage.listQueries());
+
 app.post<{ Body: unknown }>("/api/queries", async (request, reply) => {
   const parsed = queryDefinitionInputSchema.safeParse(request.body);
 
@@ -36,30 +45,7 @@ app.post<{ Body: unknown }>("/api/queries", async (request, reply) => {
     return reply.code(400).send(zodErrorResponse(parsed.error));
   }
 
-  const now = new Date().toISOString();
-  const body = parsed.data;
-
-  const query: QueryDefinition = {
-    id: body.id ?? uuid(),
-    name: body.name ?? "Untitled query",
-    description: body.description ?? "",
-    baseQuery: body.baseQuery ?? "",
-    includeTerms: body.includeTerms ?? [],
-    excludeTerms: body.excludeTerms ?? [],
-    targetDomains: body.targetDomains ?? [],
-    dateWindowDays: body.dateWindowDays ?? 30,
-    topX: body.topX ?? 5,
-    minimumScore: body.minimumScore ?? 70,
-    frequency: body.frequency ?? "manual",
-    status: body.status ?? "enabled",
-    governanceThemes: body.governanceThemes ?? [],
-    createdAt: body.createdAt ?? now,
-    updatedAt: now,
-    lastRunAt: body.lastRunAt,
-    nextRunAt: body.nextRunAt
-  };
-
-  return storage.upsertQuery(query);
+  return storage.upsertQuery(buildQueryDefinition(parsed.data));
 });
 
 app.post<{ Params: { id: string } }>("/api/queries/:id/run", async (request, reply) => {

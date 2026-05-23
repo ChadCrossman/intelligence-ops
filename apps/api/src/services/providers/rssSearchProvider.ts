@@ -1,5 +1,8 @@
 import type { SearchProvider, SearchResult } from "../searchProvider.js";
-import { envList, fetchText, firstText, hostnameFromUrl, mockSearchResults, shouldUseMockProvider, stripTags } from "./providerUtils.js";
+import { envList } from "./envUtils.js";
+import { fetchText } from "./httpClient.js";
+import { firstText, hostnameFromUrl, stripTags } from "./feedParser.js";
+import { mockSearchResults, shouldUseMockProvider } from "./mockProvider.js";
 
 const defaultFeeds = [
   "https://openai.com/news/rss.xml",
@@ -19,7 +22,10 @@ function parseRss(xml: string, feedUrl: string): SearchResult[] {
       const rssLink = firstText(block, /<link[^>]*>([\s\S]*?)<\/link>/i);
       const atomLink = block.match(/<link[^>]+href=["']([^"']+)["']/i)?.[1];
       const url = rssLink ?? atomLink;
-      const description = firstText(block, /<description[^>]*>([\s\S]*?)<\/description>/i) ?? firstText(block, /<summary[^>]*>([\s\S]*?)<\/summary>/i) ?? "";
+      const description =
+        firstText(block, /<description[^>]*>([\s\S]*?)<\/description>/i) ??
+        firstText(block, /<summary[^>]*>([\s\S]*?)<\/summary>/i) ??
+        "";
       const publishedAt =
         firstText(block, /<pubDate[^>]*>([\s\S]*?)<\/pubDate>/i) ??
         firstText(block, /<updated[^>]*>([\s\S]*?)<\/updated>/i) ??
@@ -40,7 +46,9 @@ function parseRss(xml: string, feedUrl: string): SearchResult[] {
 }
 
 export async function searchRssFeeds(feedUrls: string[]): Promise<SearchResult[]> {
-  const settled = await Promise.allSettled(feedUrls.map(async (feedUrl) => parseRss(await fetchText(feedUrl), feedUrl)));
+  const settled = await Promise.allSettled(
+    feedUrls.map(async (feedUrl) => parseRss(await fetchText(feedUrl), feedUrl))
+  );
   return settled
     .filter((result): result is PromiseFulfilledResult<SearchResult[]> => result.status === "fulfilled")
     .flatMap((result) => result.value);

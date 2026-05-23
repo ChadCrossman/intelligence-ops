@@ -1,5 +1,8 @@
 import type { SearchProvider, SearchResult } from "../searchProvider.js";
-import { buildSearchQuery, fetchText, firstText, mockSearchResults, shouldUseMockProvider, stripTags } from "./providerUtils.js";
+import { buildSearchQuery } from "./queryBuilder.js";
+import { fetchText } from "./httpClient.js";
+import { firstText, stripTags } from "./feedParser.js";
+import { mockSearchResults, shouldUseMockProvider } from "./mockProvider.js";
 
 function parseArxiv(xml: string): SearchResult[] {
   return Array.from(xml.matchAll(/<entry\b[\s\S]*?<\/entry>/gi), (match) => match[0])

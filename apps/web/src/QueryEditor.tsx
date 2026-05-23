@@ -2,6 +2,11 @@ import { useEffect, useMemo, useState } from "react";
 import type { QueryDefinition, ScheduleFrequency } from "@pwio/shared";
 import { runQuery, saveQuery } from "./api.js";
 
+interface QueryEditorProps {
+  query: QueryDefinition;
+  onSaved: () => Promise<void>;
+}
+
 type ValidationErrors = Partial<Record<"name" | "baseQuery" | "dateWindowDays" | "topX" | "minimumScore", string>>;
 
 function splitCsv(value: string): string[] {
@@ -41,13 +46,7 @@ function toNumber(value: string): number {
   return value === "" ? Number.NaN : Number(value);
 }
 
-export function QueryEditor({
-  query,
-  onSaved
-}: {
-  query: QueryDefinition;
-  onSaved: () => Promise<void>;
-}) {
+export function QueryEditor({ query, onSaved }: QueryEditorProps): React.JSX.Element {
   const [draft, setDraft] = useState(query);
   const [isSaving, setIsSaving] = useState(false);
   const [isRunning, setIsRunning] = useState(false);
@@ -101,7 +100,7 @@ export function QueryEditor({
             className="collapse-toggle"
             aria-expanded={!isPipelineCollapsed}
             aria-controls="query-pipeline-fields"
-            onClick={() => setIsPipelineCollapsed((current) => !current)}
+            onClick={() => { setIsPipelineCollapsed((current) => !current); }}
           >
             {isPipelineCollapsed ? "Expand" : "Collapse"}
           </button>
@@ -123,14 +122,14 @@ export function QueryEditor({
             <input
               value={draft.name}
               aria-invalid={hasSubmitted && validationErrors.name ? "true" : undefined}
-              onChange={(event) => setDraft({ ...draft, name: event.target.value })}
+              onChange={(event) => { setDraft({ ...draft, name: event.target.value }); }}
             />
             {hasSubmitted && validationErrors.name ? <span className="field-error">{validationErrors.name}</span> : null}
           </label>
 
           <label>
             Description
-            <textarea value={draft.description} onChange={(event) => setDraft({ ...draft, description: event.target.value })} />
+            <textarea value={draft.description} onChange={(event) => { setDraft({ ...draft, description: event.target.value }); }} />
           </label>
 
           <label>
@@ -139,93 +138,108 @@ export function QueryEditor({
               className="query-box"
               value={draft.baseQuery}
               aria-invalid={hasSubmitted && validationErrors.baseQuery ? "true" : undefined}
-              onChange={(event) => setDraft({ ...draft, baseQuery: event.target.value })}
+              onChange={(event) => { setDraft({ ...draft, baseQuery: event.target.value }); }}
             />
             {hasSubmitted && validationErrors.baseQuery ? <span className="field-error">{validationErrors.baseQuery}</span> : null}
           </label>
 
           <div className="grid-2">
-        <label>
-          Include terms, comma-separated
-          <input value={draft.includeTerms.join(", ")} onChange={(event) => setDraft({ ...draft, includeTerms: splitCsv(event.target.value) })} />
-        </label>
+            <label>
+              Include terms, comma-separated
+              <input
+                value={draft.includeTerms.join(", ")}
+                onChange={(event) => { setDraft({ ...draft, includeTerms: splitCsv(event.target.value) }); }}
+              />
+            </label>
 
-        <label>
-          Exclude terms, comma-separated
-          <input value={draft.excludeTerms.join(", ")} onChange={(event) => setDraft({ ...draft, excludeTerms: splitCsv(event.target.value) })} />
-        </label>
+            <label>
+              Exclude terms, comma-separated
+              <input
+                value={draft.excludeTerms.join(", ")}
+                onChange={(event) => { setDraft({ ...draft, excludeTerms: splitCsv(event.target.value) }); }}
+              />
+            </label>
           </div>
 
           <div className="grid-2">
-        <label>
-          Target domains, comma-separated
-          <input value={draft.targetDomains.join(", ")} onChange={(event) => setDraft({ ...draft, targetDomains: splitCsv(event.target.value) })} />
-        </label>
+            <label>
+              Target domains, comma-separated
+              <input
+                value={draft.targetDomains.join(", ")}
+                onChange={(event) => { setDraft({ ...draft, targetDomains: splitCsv(event.target.value) }); }}
+              />
+            </label>
 
-        <label>
-          Governance themes, comma-separated
-          <input value={draft.governanceThemes.join(", ")} onChange={(event) => setDraft({ ...draft, governanceThemes: splitCsv(event.target.value) })} />
-        </label>
+            <label>
+              Governance themes, comma-separated
+              <input
+                value={draft.governanceThemes.join(", ")}
+                onChange={(event) => { setDraft({ ...draft, governanceThemes: splitCsv(event.target.value) }); }}
+              />
+            </label>
           </div>
 
           <div className="grid-4">
-        <label>
-          Date window
-          <input
-            type="number"
-            min="1"
-            max="365"
-            value={Number.isNaN(draft.dateWindowDays) ? "" : draft.dateWindowDays}
-            aria-invalid={hasSubmitted && validationErrors.dateWindowDays ? "true" : undefined}
-            onChange={(event) => setDraft({ ...draft, dateWindowDays: toNumber(event.target.value) })}
-          />
-          {hasSubmitted && validationErrors.dateWindowDays ? <span className="field-error">{validationErrors.dateWindowDays}</span> : null}
-        </label>
+            <label>
+              Date window
+              <input
+                type="number"
+                min="1"
+                max="365"
+                value={Number.isNaN(draft.dateWindowDays) ? "" : draft.dateWindowDays}
+                aria-invalid={hasSubmitted && validationErrors.dateWindowDays ? "true" : undefined}
+                onChange={(event) => { setDraft({ ...draft, dateWindowDays: toNumber(event.target.value) }); }}
+              />
+              {hasSubmitted && validationErrors.dateWindowDays ? <span className="field-error">{validationErrors.dateWindowDays}</span> : null}
+            </label>
 
-        <label>
-          Top X
-          <input
-            type="number"
-            min="1"
-            max="50"
-            value={Number.isNaN(draft.topX) ? "" : draft.topX}
-            aria-invalid={hasSubmitted && validationErrors.topX ? "true" : undefined}
-            onChange={(event) => setDraft({ ...draft, topX: toNumber(event.target.value) })}
-          />
-          {hasSubmitted && validationErrors.topX ? <span className="field-error">{validationErrors.topX}</span> : null}
-        </label>
+            <label>
+              Top X
+              <input
+                type="number"
+                min="1"
+                max="50"
+                value={Number.isNaN(draft.topX) ? "" : draft.topX}
+                aria-invalid={hasSubmitted && validationErrors.topX ? "true" : undefined}
+                onChange={(event) => { setDraft({ ...draft, topX: toNumber(event.target.value) }); }}
+              />
+              {hasSubmitted && validationErrors.topX ? <span className="field-error">{validationErrors.topX}</span> : null}
+            </label>
 
-        <label>
-          Min score
-          <input
-            type="number"
-            min="0"
-            max="100"
-            value={Number.isNaN(draft.minimumScore) ? "" : draft.minimumScore}
-            aria-invalid={hasSubmitted && validationErrors.minimumScore ? "true" : undefined}
-            onChange={(event) => setDraft({ ...draft, minimumScore: toNumber(event.target.value) })}
-          />
-          {hasSubmitted && validationErrors.minimumScore ? <span className="field-error">{validationErrors.minimumScore}</span> : null}
-        </label>
+            <label>
+              Min score
+              <input
+                type="number"
+                min="0"
+                max="100"
+                value={Number.isNaN(draft.minimumScore) ? "" : draft.minimumScore}
+                aria-invalid={hasSubmitted && validationErrors.minimumScore ? "true" : undefined}
+                onChange={(event) => { setDraft({ ...draft, minimumScore: toNumber(event.target.value) }); }}
+              />
+              {hasSubmitted && validationErrors.minimumScore ? <span className="field-error">{validationErrors.minimumScore}</span> : null}
+            </label>
 
-        <label>
-          Schedule
-          <select value={draft.frequency} onChange={(event) => setDraft({ ...draft, frequency: event.target.value as ScheduleFrequency })}>
-            <option value="manual">Manual</option>
-            <option value="hourly">Hourly</option>
-            <option value="daily">Daily</option>
-            <option value="weekly">Weekly</option>
-          </select>
-        </label>
+            <label>
+              Schedule
+              <select
+                value={draft.frequency}
+                onChange={(event) => { setDraft({ ...draft, frequency: event.target.value as ScheduleFrequency }); }}
+              >
+                <option value="manual">Manual</option>
+                <option value="hourly">Hourly</option>
+                <option value="daily">Daily</option>
+                <option value="weekly">Weekly</option>
+              </select>
+            </label>
           </div>
 
           <label className="inline">
-        <input
-          type="checkbox"
-          checked={draft.status === "enabled"}
-          onChange={(event) => setDraft({ ...draft, status: event.target.checked ? "enabled" : "paused" })}
-        />
-        Enabled
+            <input
+              type="checkbox"
+              checked={draft.status === "enabled"}
+              onChange={(event) => { setDraft({ ...draft, status: event.target.checked ? "enabled" : "paused" }); }}
+            />
+            Enabled
           </label>
         </div>
       ) : null}

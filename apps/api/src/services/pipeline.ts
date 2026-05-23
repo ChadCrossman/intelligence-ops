@@ -4,7 +4,7 @@ import { generateBlogDraft } from "./blogGenerator.js";
 import { generateEmailSynopsis } from "./emailSynopsis.js";
 import { scoreArticle } from "./scoring.js";
 import { searchOrchestrator } from "./searchOrchestrator.js";
-import { storage } from "./storage.js";
+import { storage } from "./storage/index.js";
 
 export async function runQueryPipeline(query: QueryDefinition): Promise<QueryRun> {
   const run: QueryRun = {
@@ -35,12 +35,14 @@ export async function runQueryPipeline(query: QueryDefinition): Promise<QueryRun
         snippet: result.snippet,
         relevanceScore,
         governanceThemes: query.governanceThemes,
+        // status is the single source of truth — the selected filter below derives from it.
         status: relevanceScore >= query.minimumScore ? "selected" : "new"
       };
     });
 
+    // Derive selected from status so the threshold is applied exactly once.
     const selected = articles
-      .filter((article) => article.relevanceScore >= query.minimumScore)
+      .filter((article) => article.status === "selected")
       .sort((a, b) => b.relevanceScore - a.relevanceScore)
       .slice(0, query.topX);
 

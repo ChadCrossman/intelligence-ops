@@ -1,5 +1,6 @@
 import type { SearchProvider } from "../searchProvider.js";
-import { buildSearchQuery, mockSearchResults, shouldUseMockProvider } from "./providerUtils.js";
+import { buildSearchQuery } from "./queryBuilder.js";
+import { mockSearchResults, shouldUseMockProvider } from "./mockProvider.js";
 
 export const redditSearchProvider: SearchProvider = {
   name: "reddit",
@@ -17,13 +18,24 @@ export const redditSearchProvider: SearchProvider = {
       if (!response.ok) throw new Error(`Reddit request failed with status ${response.status}.`);
 
       const payload = (await response.json()) as {
-        data?: { children?: Array<{ data?: { title?: string; permalink?: string; selftext?: string; subreddit_name_prefixed?: string; created_utc?: number } }> };
+        data?: {
+          children?: Array<{
+            data?: {
+              title?: string;
+              permalink?: string;
+              selftext?: string;
+              subreddit_name_prefixed?: string;
+              created_utc?: number;
+            };
+          }>;
+        };
       };
 
       return (payload.data?.children ?? [])
         .map((child) => child.data)
-        .filter((item): item is { title: string; permalink: string; selftext?: string; subreddit_name_prefixed?: string; created_utc?: number } =>
-          Boolean(item?.title && item.permalink)
+        .filter(
+          (item): item is { title: string; permalink: string; selftext?: string; subreddit_name_prefixed?: string; created_utc?: number } =>
+            Boolean(item?.title && item.permalink)
         )
         .map((item) => ({
           title: item.title,
