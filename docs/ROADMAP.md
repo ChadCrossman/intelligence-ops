@@ -26,15 +26,6 @@ curl -s <URL> | head -5
 | Hacker News AI | `https://rsshub.app/hackernews/label/ai` (unconfirmed) | `VENDOR_BLOG_FEED_URLS` |
 | Reddit r/LocalLLaMA | RSS generator required | `VENDOR_BLOG_FEED_URLS` |
 
-### Self-host RSSHub
-
-Use a self-hosted RSSHub instance rather than the public `rsshub.app` endpoint.
-The public instance is rate-limited and unreliable for production polling.
-
-- Deploy via Docker or as a Node.js process alongside the API.
-- Update all `rsshub.app/*` URLs in `.env.local` to point at the local instance.
-- Reference: <https://docs.rsshub.app/deploy/>
-
 ### HTTP caching on feed fetches
 
 `fetchText` in `providers/httpClient.ts` makes unconditional GET requests.
@@ -223,6 +214,32 @@ Older articles are stored but not accessible from the UI.
 - Add pagination to `GET /api/articles` (cursor or offset-based).
 - Add date-range and source filters.
 - Add a dedicated archive view in the web app.
+
+---
+
+## Publish Weaver output push
+
+### Push approved blog drafts to Publish Weaver
+
+Approved blog drafts and email campaigns exist only inside Intelligence Ops.
+There is no mechanism to push them to the Publish Weaver publishing pipeline.
+
+Architecture — follow the same pattern as the Publish Weaver audit log (`auditSync.ts`):
+
+- Add a `publishWeaverClient.ts` that `callLambda`-posts to the PW Lambda endpoint.
+- When a `BlogDraft` moves to `approved` status, call the client to push the draft payload.
+- Track push status on the draft: `pending_push` → `pushed` | `push_failed`.
+- Add `PUBLISH_WEAVER_LAMBDA_URL` and `PUBLISH_WEAVER_API_KEY` to `.env.local`.
+- Surface push status in the Results Review UI so operators know when a draft is live.
+
+### Self-host RSSHub
+
+Use a self-hosted RSSHub instance rather than the public `rsshub.app` endpoint.
+The public instance is rate-limited and unreliable for production polling.
+
+- Deploy as a Node.js process alongside the API (no Docker — local-first setup).
+- Update all `rsshub.app/*` URLs in `.env.local` to point at `http://localhost:1200`.
+- Reference: <https://docs.rsshub.app/deploy/>
 
 ---
 

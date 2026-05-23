@@ -1,6 +1,7 @@
 import pg from "pg";
 import { fileStorage } from "./fileStorage.js";
 import { createPostgresStorage } from "./postgresStorage.js";
+import { createSqliteStorage } from "./sqliteStorage.js";
 
 export type { Storage } from "./storage.js";
 
@@ -29,7 +30,19 @@ function createPool() {
   });
 }
 
-export const storage =
-  process.env.STORAGE_PROVIDER === "postgres"
-    ? createPostgresStorage(createPool())
-    : fileStorage;
+function createStorage() {
+  const provider = process.env.STORAGE_PROVIDER ?? "sqlite";
+
+  if (provider === "postgres") {
+    return createPostgresStorage(createPool());
+  }
+
+  if (provider === "file") {
+    return fileStorage;
+  }
+
+  // Default: sqlite — local-first, no server required.
+  return createSqliteStorage();
+}
+
+export const storage = createStorage();
