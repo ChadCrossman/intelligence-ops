@@ -1,6 +1,6 @@
 import cors from "@fastify/cors";
 import Fastify from "fastify";
-import type { QueryDefinition } from "@pwio/shared";
+import type { QueryDefinition, RetrievedArticle } from "@pwio/shared";
 import { v4 as uuid } from "uuid";
 import { runQueryPipeline } from "./services/pipeline.js";
 import { startScheduler } from "./services/scheduler.js";
@@ -52,6 +52,26 @@ app.post<{ Params: { id: string } }>("/api/queries/:id/run", async (request, rep
   }
 
   return runQueryPipeline(query);
+});
+
+app.patch<{
+  Params: { id: string };
+  Body: { status?: RetrievedArticle["status"] };
+}>("/api/articles/:id/status", async (request, reply) => {
+  const status = request.body.status;
+  const allowedStatuses: RetrievedArticle["status"][] = ["new", "accepted", "rejected", "selected"];
+
+  if (!status || !allowedStatuses.includes(status)) {
+    return reply.code(400).send({ message: "Invalid article status" });
+  }
+
+  const article = storage.updateArticleStatus(request.params.id, status);
+
+  if (!article) {
+    return reply.code(404).send({ message: "Article not found" });
+  }
+
+  return article;
 });
 
 startScheduler();

@@ -1,4 +1,4 @@
-import type { DashboardSnapshot, QueryDefinition, QueryRun } from "@pwio/shared";
+import type { DashboardSnapshot, QueryDefinition, QueryRun, RetrievedArticle } from "@pwio/shared";
 
 const API_BASE = import.meta.env.VITE_API_BASE_URL ?? "http://localhost:3001";
 
@@ -27,5 +27,18 @@ export async function runQuery(id: string): Promise<QueryRun> {
   });
 
   if (!response.ok) throw new Error("Failed to run query");
+  return response.json();
+}
+
+export async function updateArticleStatus(id: string, status: RetrievedArticle["status"]): Promise<RetrievedArticle> {
+  const response = await fetch(`${API_BASE}/api/articles/${id}/status`, {
+    method: "PATCH",
+    headers: {
+      "Content-Type": "application/json"
+    },
+    body: JSON.stringify({ status })
+  });
+
+  if (!response.ok) throw new Error("Failed to update article status");
   return response.json();
 }

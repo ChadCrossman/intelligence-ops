@@ -107,6 +107,19 @@ export const storage = {
     writeStore(store);
   },
 
+  updateArticleStatus(id: string, status: RetrievedArticle["status"]): RetrievedArticle | undefined {
+    const store = readStore();
+    const article = store.articles.find((item) => item.id === id);
+
+    if (!article) {
+      return undefined;
+    }
+
+    article.status = status;
+    writeStore(store);
+    return article;
+  },
+
   addBlogDraft(blogDraft: BlogDraft): void {
     const store = readStore();
     store.blogDrafts.push(blogDraft);

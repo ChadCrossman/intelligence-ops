@@ -102,6 +102,27 @@ main {
   gap: 0.75rem;
 }
 
+.view-tabs {
+  display: flex;
+  gap: 0.75rem;
+  margin-bottom: 1.5rem;
+}
+
+.view-tabs button,
+.status-filter button,
+.review-actions button {
+  background: rgba(255, 255, 255, 0.05);
+  border-color: rgba(149, 166, 255, 0.22);
+}
+
+.view-tabs button.active,
+.status-filter button.active,
+.review-actions button.active {
+  border-color: #58e6ff;
+  background: rgba(88, 230, 255, 0.14);
+  box-shadow: 0 0 20px rgba(88, 230, 255, 0.18);
+}
+
 .sidebar {
   display: grid;
   gap: 0.75rem;
@@ -228,6 +249,105 @@ textarea {
   margin: 0;
 }
 
+.muted {
+  color: #93a0bb;
+}
+
+.results-review {
+  display: grid;
+  gap: 1rem;
+}
+
+.status-filter {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.5rem;
+  justify-content: flex-end;
+}
+
+.status-filter button {
+  align-items: center;
+  display: flex;
+  gap: 0.5rem;
+  padding: 0.55rem 0.75rem;
+}
+
+.status-filter span {
+  color: #93a0bb;
+  font-size: 0.8rem;
+}
+
+.review-list {
+  display: grid;
+  gap: 0.85rem;
+}
+
+.review-item {
+  border: 1px solid rgba(149, 166, 255, 0.14);
+  border-left-width: 4px;
+  border-radius: 12px;
+  display: grid;
+  gap: 1rem;
+  grid-template-columns: minmax(0, 1fr) auto;
+  padding: 1rem;
+}
+
+.review-item.accepted {
+  border-left-color: #58e6ff;
+}
+
+.review-item.selected {
+  border-left-color: #58ff9a;
+}
+
+.review-item.rejected {
+  border-left-color: #ff5b5b;
+}
+
+.review-main {
+  display: grid;
+  gap: 0.45rem;
+  min-width: 0;
+}
+
+.review-main h3 {
+  font-size: 1rem;
+  margin: 0;
+}
+
+.review-main a {
+  color: #f4f7fb;
+  text-decoration: none;
+}
+
+.review-main a:hover {
+  color: #58e6ff;
+}
+
+.review-main p {
+  color: #b8c2da;
+  margin: 0;
+}
+
+.article-meta {
+  color: #93a0bb;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.75rem;
+  font-size: 0.8rem;
+}
+
+.review-actions {
+  align-content: start;
+  display: grid;
+  gap: 0.5rem;
+  min-width: 132px;
+}
+
+.review-actions button {
+  padding: 0.55rem 0.75rem;
+}
+
 .error {
   border: 1px solid rgba(255, 91, 91, 0.7);
   background: rgba(255, 91, 91, 0.12);
@@ -240,11 +360,20 @@ textarea {
   .layout,
   .cards,
   .grid-2,
-  .grid-4 {
+  .grid-4,
+  .review-item {
     grid-template-columns: 1fr;
   }
 
   .hero {
     display: grid;
+  }
+
+  .panel-heading,
+  .status-filter,
+  .view-tabs {
+    align-items: stretch;
+    display: grid;
+    justify-content: initial;
   }
 }

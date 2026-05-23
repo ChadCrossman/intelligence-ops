@@ -2,6 +2,7 @@ import { useEffect, useMemo, useState } from "react";
 import type { DashboardSnapshot } from "@pwio/shared";
 import { getDashboard } from "./api.js";
 import { QueryEditor } from "./QueryEditor.js";
+import { ResultsReview } from "./ResultsReview.js";
 
 const emptyDashboard: DashboardSnapshot = {
   queries: [],
@@ -15,6 +16,7 @@ export default function App() {
   const [dashboard, setDashboard] = useState<DashboardSnapshot>(emptyDashboard);
   const [selectedQueryId, setSelectedQueryId] = useState<string | undefined>();
   const [error, setError] = useState<string | undefined>();
+  const [activeView, setActiveView] = useState<"queries" | "review">("queries");
 
   async function refresh() {
     try {
@@ -49,26 +51,41 @@ export default function App() {
 
       {error ? <div className="error">{error}</div> : null}
 
-      <div className="layout">
-        <aside className="panel sidebar">
-          <div className="panel-heading">
-            <h2>Queries</h2>
-          </div>
+      <nav className="view-tabs" aria-label="Primary views">
+        <button className={activeView === "queries" ? "active" : ""} onClick={() => setActiveView("queries")}>
+          Queries
+        </button>
+        <button className={activeView === "review" ? "active" : ""} onClick={() => setActiveView("review")}>
+          Results review
+        </button>
+      </nav>
 
-          {dashboard.queries.map((query) => (
-            <button
-              key={query.id}
-              className={query.id === selectedQuery?.id ? "query active" : "query"}
-              onClick={() => setSelectedQueryId(query.id)}
-            >
-              <strong>{query.name}</strong>
-              <span>{query.frequency} · {query.status}</span>
-            </button>
-          ))}
-        </aside>
+      {activeView === "queries" ? (
+        <div className="layout">
+          <aside className="panel sidebar">
+            <div className="panel-heading">
+              <h2>Queries</h2>
+            </div>
 
-        {selectedQuery ? <QueryEditor query={selectedQuery} onSaved={refresh} /> : null}
-      </div>
+            {dashboard.queries.map((query) => (
+              <button
+                key={query.id}
+                className={query.id === selectedQuery?.id ? "query active" : "query"}
+                onClick={() => setSelectedQueryId(query.id)}
+              >
+                <strong>{query.name}</strong>
+                <span>
+                  {query.frequency} - {query.status}
+                </span>
+              </button>
+            ))}
+          </aside>
+
+          {selectedQuery ? <QueryEditor query={selectedQuery} onSaved={refresh} /> : null}
+        </div>
+      ) : (
+        <ResultsReview dashboard={dashboard} onUpdated={refresh} />
+      )}
 
       <section className="cards">
         <div className="panel">
@@ -77,7 +94,9 @@ export default function App() {
           {dashboard.recentRuns.map((run) => (
             <div className="row" key={run.id}>
               <span>{run.status}</span>
-              <strong>{run.articlesSelected}/{run.articlesFound} selected</strong>
+              <strong>
+                {run.articlesSelected}/{run.articlesFound} selected
+              </strong>
               <small>{new Date(run.startedAt).toLocaleString()}</small>
             </div>
           ))}
@@ -88,7 +107,9 @@ export default function App() {
           {dashboard.recentArticles.slice(0, 8).map((article) => (
             <div className="article" key={article.id}>
               <strong>{article.title}</strong>
-              <span>{article.source} · score {article.relevanceScore}</span>
+              <span>
+                {article.source} - score {article.relevanceScore}
+              </span>
               <p>{article.snippet}</p>
             </div>
           ))}
