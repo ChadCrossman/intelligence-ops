@@ -4,3 +4,79 @@ dist
 .env.local
 *.log
 apps/api/src/data/store.json
+
+# Dependencies
+node_modules
+_packages
+/.pnp
+.pnp.js
+
+# Claude
+.claude/
+
+# Build outputs
+dist
+dist-ssr
+build
+*.local
+
+# Environment variables
+.env
+.env.example
+.env.local
+.env.development.local
+.env.test.local
+.env.production.local
+
+# Logs
+logs
+*.log
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+pnpm-debug.log*
+lerna-debug.log*
+
+# Editor directories and files
+.vscode/*
+!.vscode/extensions.json
+.idea
+.DS_Store
+*.suo
+*.ntvs*
+*.njsproj
+*.sln
+*.sw?
+
+# Testing
+coverage
+*.lcov
+.nyc_output
+playwright-report/
+test-results/
+e2e/.auth/*.json
+
+# Misc
+.cache
+.temp
+.tmp
+tmpclaude-*-cwd
+
+# My files
+ToDo.txt
+ToDo.md
+WhatIWantToDo.txt
+.markdownlint.json
+
+# Scripts containing secrets
+scripts/setup-github-secrets.sh
+scripts/setup-lambda-config.sh
+scripts/setup-dev-lambda-config.sh
+scripts/setup-prod-lambda-config.sh
+
+# Local DuckDB runtime files
+*.duckdb.wal
+*.duckdb.tmp
+usage.duckdb
+usage.duckdb.wal
+
