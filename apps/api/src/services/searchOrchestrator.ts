@@ -1,5 +1,10 @@
 import type { QueryDefinition } from "@pwio/shared";
+import { arxivSearchProvider } from "./providers/arxivSearchProvider.js";
 import { braveSearchProvider } from "./providers/braveSearchProvider.js";
+import { governanceBlogsProvider, regulatoryFeedsProvider, vendorBlogsProvider } from "./providers/feedCategoryProviders.js";
+import { bingSearchProvider, googleSearchProvider, newsApiProvider } from "./providers/genericSearchProviders.js";
+import { redditSearchProvider } from "./providers/redditSearchProvider.js";
+import { rssSearchProvider } from "./providers/rssSearchProvider.js";
 import type { SearchProvider, SearchResult } from "./searchProvider.js";
 
 export class SearchOrchestrator {
@@ -56,4 +61,15 @@ function normalizeUrl(value: string): string {
   }
 }
 
-export const searchOrchestrator = new SearchOrchestrator([braveSearchProvider]);
+export const searchOrchestrator = new SearchOrchestrator([
+  braveSearchProvider,
+  googleSearchProvider,
+  bingSearchProvider,
+  rssSearchProvider,
+  arxivSearchProvider,
+  newsApiProvider,
+  redditSearchProvider,
+  regulatoryFeedsProvider,
+  governanceBlogsProvider,
+  vendorBlogsProvider
+]);

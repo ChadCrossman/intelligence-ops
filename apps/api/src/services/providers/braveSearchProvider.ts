@@ -1,5 +1,6 @@
 import type { QueryDefinition } from "@pwio/shared";
 import type { SearchProvider } from "../searchProvider.js";
+import { buildSearchQuery, mockSearchResults, shouldUseMockProvider } from "./providerUtils.js";
 
 interface BraveWebSearchResponse {
   web?: {
@@ -21,18 +22,6 @@ interface BraveWebResult {
 }
 
 const braveSearchEndpoint = "https://api.search.brave.com/res/v1/web/search";
-
-function buildSearchQuery(query: QueryDefinition): string {
-  const includeTerms = query.includeTerms.map((term) => `"${term}"`);
-  const excludeTerms = query.excludeTerms.map((term) => `-${term}`);
-  const targetDomains = query.targetDomains.map((domain) => `site:${domain}`);
-  const domainClause = targetDomains.length > 0 ? `(${targetDomains.join(" OR ")})` : "";
-
-  return [query.baseQuery, ...includeTerms, ...excludeTerms, domainClause]
-    .filter(Boolean)
-    .join(" ")
-    .slice(0, 400);
-}
 
 function freshnessForDateWindow(days: number): string {
   if (days <= 1) return "pd";
@@ -72,11 +61,12 @@ export const braveSearchProvider: SearchProvider = {
     const apiKey = process.env.BRAVE_SEARCH_API_KEY;
 
     if (!apiKey) {
+      if (shouldUseMockProvider()) return mockSearchResults("Brave", query);
       throw new Error("BRAVE_SEARCH_API_KEY is required to run Brave Search queries.");
     }
 
     const searchUrl = new URL(braveSearchEndpoint);
-    searchUrl.searchParams.set("q", buildSearchQuery(query));
+    searchUrl.searchParams.set("q", buildSearchQuery(query).slice(0, 400));
     searchUrl.searchParams.set("count", String(Math.min(Math.max(query.topX + 5, 1), 20)));
     searchUrl.searchParams.set("safesearch", "moderate");
     searchUrl.searchParams.set("result_filter", "web");

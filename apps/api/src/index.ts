@@ -1,6 +1,7 @@
 import cors from "@fastify/cors";
 import Fastify from "fastify";
-import type { QueryDefinition, RetrievedArticle } from "@pwio/shared";
+import { queryDefinitionInputSchema, updateArticleStatusInputSchema, type QueryDefinition } from "@pwio/shared";
+import { ZodError } from "zod";
 import { v4 as uuid } from "uuid";
 import { runQueryPipeline } from "./services/pipeline.js";
 import { startScheduler } from "./services/scheduler.js";
@@ -18,27 +19,44 @@ app.get("/api/dashboard", async () => storage.snapshot());
 
 app.get("/api/queries", async () => storage.listQueries());
 
-app.post<{ Body: Partial<QueryDefinition> }>("/api/queries", async (request) => {
+function zodErrorResponse(error: ZodError) {
+  return {
+    message: "Invalid request body",
+    issues: error.issues.map((issue) => ({
+      path: issue.path.join("."),
+      message: issue.message
+    }))
+  };
+}
+
+app.post<{ Body: unknown }>("/api/queries", async (request, reply) => {
+  const parsed = queryDefinitionInputSchema.safeParse(request.body);
+
+  if (!parsed.success) {
+    return reply.code(400).send(zodErrorResponse(parsed.error));
+  }
+
   const now = new Date().toISOString();
+  const body = parsed.data;
 
   const query: QueryDefinition = {
-    id: request.body.id ?? uuid(),
-    name: request.body.name ?? "Untitled query",
-    description: request.body.description ?? "",
-    baseQuery: request.body.baseQuery ?? "",
-    includeTerms: request.body.includeTerms ?? [],
-    excludeTerms: request.body.excludeTerms ?? [],
-    targetDomains: request.body.targetDomains ?? [],
-    dateWindowDays: request.body.dateWindowDays ?? 30,
-    topX: request.body.topX ?? 5,
-    minimumScore: request.body.minimumScore ?? 70,
-    frequency: request.body.frequency ?? "manual",
-    status: request.body.status ?? "enabled",
-    governanceThemes: request.body.governanceThemes ?? [],
-    createdAt: request.body.createdAt ?? now,
+    id: body.id ?? uuid(),
+    name: body.name ?? "Untitled query",
+    description: body.description ?? "",
+    baseQuery: body.baseQuery ?? "",
+    includeTerms: body.includeTerms ?? [],
+    excludeTerms: body.excludeTerms ?? [],
+    targetDomains: body.targetDomains ?? [],
+    dateWindowDays: body.dateWindowDays ?? 30,
+    topX: body.topX ?? 5,
+    minimumScore: body.minimumScore ?? 70,
+    frequency: body.frequency ?? "manual",
+    status: body.status ?? "enabled",
+    governanceThemes: body.governanceThemes ?? [],
+    createdAt: body.createdAt ?? now,
     updatedAt: now,
-    lastRunAt: request.body.lastRunAt,
-    nextRunAt: request.body.nextRunAt
+    lastRunAt: body.lastRunAt,
+    nextRunAt: body.nextRunAt
   };
 
   return storage.upsertQuery(query);
@@ -56,16 +74,15 @@ app.post<{ Params: { id: string } }>("/api/queries/:id/run", async (request, rep
 
 app.patch<{
   Params: { id: string };
-  Body: { status?: RetrievedArticle["status"] };
+  Body: unknown;
 }>("/api/articles/:id/status", async (request, reply) => {
-  const status = request.body.status;
-  const allowedStatuses: RetrievedArticle["status"][] = ["new", "accepted", "rejected", "selected"];
+  const parsed = updateArticleStatusInputSchema.safeParse(request.body);
 
-  if (!status || !allowedStatuses.includes(status)) {
-    return reply.code(400).send({ message: "Invalid article status" });
+  if (!parsed.success) {
+    return reply.code(400).send(zodErrorResponse(parsed.error));
   }
 
-  const article = storage.updateArticleStatus(request.params.id, status);
+  const article = storage.updateArticleStatus(request.params.id, parsed.data.status);
 
   if (!article) {
     return reply.code(404).send({ message: "Article not found" });

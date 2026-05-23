@@ -111,7 +111,7 @@ export function QueryEditor({
         Name
         <input
           value={draft.name}
-          aria-invalid={Boolean(validationErrors.name)}
+          aria-invalid={hasSubmitted && validationErrors.name ? "true" : undefined}
           onChange={(event) => setDraft({ ...draft, name: event.target.value })}
         />
         {hasSubmitted && validationErrors.name ? <span className="field-error">{validationErrors.name}</span> : null}
@@ -127,7 +127,7 @@ export function QueryEditor({
         <textarea
           className="query-box"
           value={draft.baseQuery}
-          aria-invalid={Boolean(validationErrors.baseQuery)}
+          aria-invalid={hasSubmitted && validationErrors.baseQuery ? "true" : undefined}
           onChange={(event) => setDraft({ ...draft, baseQuery: event.target.value })}
         />
         {hasSubmitted && validationErrors.baseQuery ? <span className="field-error">{validationErrors.baseQuery}</span> : null}
@@ -165,7 +165,7 @@ export function QueryEditor({
             min="1"
             max="365"
             value={Number.isNaN(draft.dateWindowDays) ? "" : draft.dateWindowDays}
-            aria-invalid={Boolean(validationErrors.dateWindowDays)}
+            aria-invalid={hasSubmitted && validationErrors.dateWindowDays ? "true" : undefined}
             onChange={(event) => setDraft({ ...draft, dateWindowDays: toNumber(event.target.value) })}
           />
           {hasSubmitted && validationErrors.dateWindowDays ? <span className="field-error">{validationErrors.dateWindowDays}</span> : null}
@@ -178,7 +178,7 @@ export function QueryEditor({
             min="1"
             max="50"
             value={Number.isNaN(draft.topX) ? "" : draft.topX}
-            aria-invalid={Boolean(validationErrors.topX)}
+            aria-invalid={hasSubmitted && validationErrors.topX ? "true" : undefined}
             onChange={(event) => setDraft({ ...draft, topX: toNumber(event.target.value) })}
           />
           {hasSubmitted && validationErrors.topX ? <span className="field-error">{validationErrors.topX}</span> : null}
@@ -191,7 +191,7 @@ export function QueryEditor({
             min="0"
             max="100"
             value={Number.isNaN(draft.minimumScore) ? "" : draft.minimumScore}
-            aria-invalid={Boolean(validationErrors.minimumScore)}
+            aria-invalid={hasSubmitted && validationErrors.minimumScore ? "true" : undefined}
             onChange={(event) => setDraft({ ...draft, minimumScore: toNumber(event.target.value) })}
           />
           {hasSubmitted && validationErrors.minimumScore ? <span className="field-error">{validationErrors.minimumScore}</span> : null}
