@@ -30,7 +30,7 @@ function createPool() {
   });
 }
 
-function createStorage() {
+async function createStorage() {
   const provider = process.env.STORAGE_PROVIDER ?? "sqlite";
 
   if (provider === "postgres") {
@@ -45,4 +45,6 @@ function createStorage() {
   return createSqliteStorage();
 }
 
-export const storage = createStorage();
+// Top-level await is valid in ESM ("type": "module").
+// The server's import of this module suspends until the DB is ready.
+export const storage = await createStorage();
