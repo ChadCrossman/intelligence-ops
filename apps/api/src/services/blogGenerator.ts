@@ -1,11 +1,18 @@
 import { v4 as uuid } from "uuid";
 import type { BlogDraft, RetrievedArticle } from "@pwio/shared";
 
-export function generateBlogDraft(articles: RetrievedArticle[]): BlogDraft {
+interface BlogDraftGeneratorOptions {
+  createId?: () => string;
+  now?: () => Date;
+}
+
+export function generateBlogDraft(articles: RetrievedArticle[], options: BlogDraftGeneratorOptions = {}): BlogDraft {
+  const createId = options.createId ?? uuid;
+  const now = options.now ?? (() => new Date());
   const primary = articles[0];
 
   return {
-    id: uuid(),
+    id: createId(),
     title: primary ? `What ${primary.title} Shows About AI Governance` : "AI Governance Signals Worth Watching",
     subtitle: "How operational governance, semantic control, provenance, and publication assurance reduce enterprise risk.",
     summary: "A draft article created from selected monitoring results. Replace this placeholder with an LLM-backed generator when ready.",
@@ -28,6 +35,6 @@ export function generateBlogDraft(articles: RetrievedArticle[]): BlogDraft {
     ].join("\n"),
     sourceArticleIds: articles.map((article) => article.id),
     status: "draft",
-    createdAt: new Date().toISOString()
+    createdAt: now().toISOString()
   };
 }

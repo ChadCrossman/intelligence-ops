@@ -70,6 +70,12 @@ pnpm dev:api
 
 For persistent local configuration, copy `.env.example` to your own local environment file or set user-level Windows environment variables. API keys are server-side only; do not add Brave, OpenAI, or email provider keys to `apps/web` or any `VITE_` variable.
 
+Future PostgreSQL-backed storage should read its connection string from:
+
+```powershell
+$env:LABELS_DATABASE_URL="postgresql://postgres<Password>@localhost:5432/PublishWeaver?sslmode=disable"
+```
+
 ## Search architecture
 
 Search runs through an API-side orchestrator:
@@ -90,6 +96,7 @@ pnpm dev
 pnpm dev:web
 pnpm dev:api
 pnpm build
+pnpm test
 pnpm typecheck
 ```
 
