@@ -123,9 +123,8 @@ Implement a real search provider for Brave Search API.
 
 Constraints:
 - Use the existing SearchProvider interface.
-- Add a new braveSearchProvider.ts file.
-- Keep mockSearchProvider.ts for local development.
-- Select provider using SEARCH_PROVIDER=mock|brave.
+- Add Brave as the first concrete provider behind SearchOrchestrator.
+- Keep the pipeline dependent on the orchestrator, not a single provider.
 - Read BRAVE_SEARCH_API_KEY from process.env.
 - Never expose the key to the frontend.
 - Update README.md with setup instructions.

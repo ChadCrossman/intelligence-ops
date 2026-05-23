@@ -3,7 +3,7 @@ import type { QueryDefinition, QueryRun, RetrievedArticle } from "@pwio/shared";
 import { generateBlogDraft } from "./blogGenerator.js";
 import { generateEmailSynopsis } from "./emailSynopsis.js";
 import { scoreArticle } from "./scoring.js";
-import { mockSearchProvider } from "./searchProvider.js";
+import { searchOrchestrator } from "./searchOrchestrator.js";
 import { storage } from "./storage.js";
 
 export async function runQueryPipeline(query: QueryDefinition): Promise<QueryRun> {
@@ -19,7 +19,7 @@ export async function runQueryPipeline(query: QueryDefinition): Promise<QueryRun
   storage.addRun(run);
 
   try {
-    const results = await mockSearchProvider.search(query);
+    const results = await searchOrchestrator.execute(query);
 
     const articles: RetrievedArticle[] = results.map((result) => {
       const relevanceScore = scoreArticle(query, result);

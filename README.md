@@ -59,6 +59,30 @@ The API runs on:
 http://localhost:3001
 ```
 
+## Environment variables
+
+Create local environment variables for the API process before running searches:
+
+```powershell
+$env:BRAVE_SEARCH_API_KEY="your_brave_search_api_key"
+pnpm dev:api
+```
+
+For persistent local configuration, copy `.env.example` to your own local environment file or set user-level Windows environment variables. API keys are server-side only; do not add Brave, OpenAI, or email provider keys to `apps/web` or any `VITE_` variable.
+
+## Search architecture
+
+Search runs through an API-side orchestrator:
+
+```text
+Query pipeline
+  -> SearchOrchestrator
+    -> Brave provider
+    -> Future: Bing, Google, RSS, News APIs, Reddit/X/LinkedIn, regulatory feeds
+```
+
+The MVP registers Brave as the only real provider. The orchestrator is responsible for fan-out across providers and URL deduplication before the pipeline scores, ranks, and selects the top results. Future provider selection, weighting, and per-query provider controls should update the shared API/UI types together.
+
 ## Development commands
 
 ```powershell
@@ -88,7 +112,6 @@ PM2 on Windows may require running the generated startup command from an elevate
 Replace these placeholder services:
 
 ```text
-apps/api/src/services/searchProvider.ts
 apps/api/src/services/blogGenerator.ts
 apps/api/src/services/emailSynopsis.ts
 apps/api/src/services/storage.ts
@@ -96,7 +119,6 @@ apps/api/src/services/storage.ts
 
 Recommended next integrations:
 
-- Search: Brave Search API, Bing Web Search API, Google Programmable Search, SerpAPI, or RSS feeds
 - Database: PostgreSQL
 - Queue: BullMQ + Redis or a PostgreSQL-backed job table
 - LLM: OpenAI Responses API
