@@ -1,7 +1,7 @@
 import type { QueryDefinition } from "@pwio/shared";
 import { arxivSearchProvider } from "./providers/arxivSearchProvider.js";
 import { braveSearchProvider } from "./providers/braveSearchProvider.js";
-import { governanceBlogsProvider, regulatoryFeedsProvider, vendorBlogsProvider } from "./providers/feedCategoryProviders.js";
+import { academicFeedsProvider, governanceBlogsProvider, regulatoryFeedsProvider, vendorBlogsProvider } from "./providers/feedCategoryProviders.js";
 import { bingSearchProvider, googleSearchProvider, newsApiProvider } from "./providers/genericSearchProviders.js";
 import { redditSearchProvider } from "./providers/redditSearchProvider.js";
 import { rssSearchProvider } from "./providers/rssSearchProvider.js";
@@ -71,5 +71,6 @@ export const searchOrchestrator = new SearchOrchestrator([
   redditSearchProvider,
   regulatoryFeedsProvider,
   governanceBlogsProvider,
-  vendorBlogsProvider
+  vendorBlogsProvider,
+  academicFeedsProvider
 ]);

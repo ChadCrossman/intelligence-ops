@@ -85,15 +85,44 @@ A result from `nist.gov` and one from a personal blog score identically on domai
   tier 2: established research institutions, tier 3: general tech press).
 - Apply a multiplier to `relevanceScore` based on tier.
 
-### Auto-tagging by topic category
+### Auto-tagging by topic category and source type
 
 Articles are stored with `governanceThemes` from the query definition only.
 There is no per-article categorisation.
 
-- After scoring, classify each article into one or more topic tags:
-  `regulation`, `model-release`, `safety-research`, `industry`, `tooling`, `policy`.
+Two complementary tag dimensions are needed:
+
+**Topic tags** (what the article is about):
+
+- `regulation`, `model-release`, `safety-research`, `industry`, `tooling`, `policy`
 - Use keyword heuristics initially; replace with a lightweight classifier when volume justifies it.
-- Expose tags as a filter in the Results Review UI.
+- Expose topic tags as a filter in the Results Review UI.
+
+**Source-type tags** (where the article came from):
+
+- `primary-research` — arXiv preprints and journal papers
+- `conference` — ICML, NeurIPS, ICLR, PMLR proceedings
+- `lab-blog` — BAIR, Google Research, DeepMind, Anthropic
+- `journalism` — MIT Tech Review, The Verge, Ars Technica
+- `regulation` — NIST, EU DSIT, White House policy
+
+Source type can be derived from the `SearchProvider` name and the feed URL without ML.
+Apply source-type tags at ingestion time in the pipeline.
+
+### arXiv volume handling
+
+`ACADEMIC_FEED_URLS` includes broad arXiv category feeds (`cs.AI`, `cs.LG`, `cs.CL`, `stat.ML`).
+Each category emits 100–300 new papers per day; without filtering this overwhelms the review queue.
+
+Short-term mitigations available now:
+
+- Set a high `minimumScore` (≥ 70) on queries that include academic feeds.
+- Use `includeTerms` in the query to gate on keywords like `alignment`, `governance`, `LLM`, `safety`.
+
+Medium-term improvements:
+
+- Add a title-keyword pre-filter in the academic feeds provider before scoring runs.
+- Expose per-provider `topX` so academic feeds can be capped independently.
 
 ### ML-based noise filtering
 

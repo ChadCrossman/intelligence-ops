@@ -29,3 +29,9 @@ function createFeedCategoryProvider(name: string, envName: string): SearchProvid
 export const regulatoryFeedsProvider = createFeedCategoryProvider("regulatory feeds", "REGULATORY_FEED_URLS");
 export const governanceBlogsProvider = createFeedCategoryProvider("governance blogs", "GOVERNANCE_BLOG_FEED_URLS");
 export const vendorBlogsProvider = createFeedCategoryProvider("vendor blogs", "VENDOR_BLOG_FEED_URLS");
+
+// Academic and research feeds — arXiv category RSS, conference proceedings, lab blogs.
+// These are broad category feeds (all papers in cs.AI, cs.LG, etc.) and complement the
+// arxivSearchProvider which runs targeted API queries against the same corpus.
+// URL de-duplication in the orchestrator handles any overlap between the two sources.
+export const academicFeedsProvider = createFeedCategoryProvider("academic feeds", "ACADEMIC_FEED_URLS");
