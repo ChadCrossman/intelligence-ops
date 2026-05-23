@@ -11,8 +11,8 @@
     "test": "pnpm -r --if-present test",
     "typecheck": "pnpm -r typecheck"
   },
-  "packageManager": "pnpm@9.15.0",
+  "packageManager": "pnpm@10.5.0",
   "devDependencies": {
-    "typescript": "^5.7.3"
+    "typescript": "^6.0.3"
   }
 }
