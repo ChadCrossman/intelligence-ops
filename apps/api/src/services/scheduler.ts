@@ -4,7 +4,7 @@ import { storage } from "./storage.js";
 
 export function startScheduler(): void {
   cron.schedule("0 * * * *", async () => {
-    const queries = storage.listQueries().filter((query) => query.status === "enabled");
+    const queries = (await storage.listQueries()).filter((query) => query.status === "enabled");
 
     for (const query of queries) {
       if (query.frequency === "hourly") {
@@ -14,7 +14,7 @@ export function startScheduler(): void {
   });
 
   cron.schedule("0 7 * * *", async () => {
-    const queries = storage.listQueries().filter((query) => query.status === "enabled" && query.frequency === "daily");
+    const queries = (await storage.listQueries()).filter((query) => query.status === "enabled" && query.frequency === "daily");
 
     for (const query of queries) {
       await runQueryPipeline(query);
@@ -22,7 +22,7 @@ export function startScheduler(): void {
   });
 
   cron.schedule("0 7 * * 1", async () => {
-    const queries = storage.listQueries().filter((query) => query.status === "enabled" && query.frequency === "weekly");
+    const queries = (await storage.listQueries()).filter((query) => query.status === "enabled" && query.frequency === "weekly");
 
     for (const query of queries) {
       await runQueryPipeline(query);

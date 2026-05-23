@@ -63,7 +63,7 @@ app.post<{ Body: unknown }>("/api/queries", async (request, reply) => {
 });
 
 app.post<{ Params: { id: string } }>("/api/queries/:id/run", async (request, reply) => {
-  const query = storage.getQuery(request.params.id);
+  const query = await storage.getQuery(request.params.id);
 
   if (!query) {
     return reply.code(404).send({ message: "Query not found" });
@@ -82,7 +82,7 @@ app.patch<{
     return reply.code(400).send(zodErrorResponse(parsed.error));
   }
 
-  const article = storage.updateArticleStatus(request.params.id, parsed.data.status);
+  const article = await storage.updateArticleStatus(request.params.id, parsed.data.status);
 
   if (!article) {
     return reply.code(404).send({ message: "Article not found" });

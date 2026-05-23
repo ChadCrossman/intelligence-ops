@@ -16,7 +16,7 @@ export async function runQueryPipeline(query: QueryDefinition): Promise<QueryRun
     articlesSelected: 0
   };
 
-  storage.addRun(run);
+  await storage.addRun(run);
 
   try {
     const results = await searchOrchestrator.execute(query);
@@ -44,14 +44,14 @@ export async function runQueryPipeline(query: QueryDefinition): Promise<QueryRun
       .sort((a, b) => b.relevanceScore - a.relevanceScore)
       .slice(0, query.topX);
 
-    storage.addArticles(articles);
+    await storage.addArticles(articles);
 
     if (selected.length > 0) {
       const blogDraft = generateBlogDraft(selected);
-      storage.addBlogDraft(blogDraft);
+      await storage.addBlogDraft(blogDraft);
 
       const emailCampaign = generateEmailSynopsis([blogDraft]);
-      storage.addEmailCampaign(emailCampaign);
+      await storage.addEmailCampaign(emailCampaign);
     }
 
     const completed: QueryRun = {
@@ -62,7 +62,7 @@ export async function runQueryPipeline(query: QueryDefinition): Promise<QueryRun
       articlesSelected: selected.length
     };
 
-    storage.updateRun(completed);
+    await storage.updateRun(completed);
     return completed;
   } catch (error) {
     const failed: QueryRun = {
@@ -72,7 +72,7 @@ export async function runQueryPipeline(query: QueryDefinition): Promise<QueryRun
       errorMessage: error instanceof Error ? error.message : "Unknown error"
     };
 
-    storage.updateRun(failed);
+    await storage.updateRun(failed);
     return failed;
   }
 }
